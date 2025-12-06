@@ -1,0 +1,222 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Travel API",
+    "version": "1.0.0",
+    "description": "CRUD API for travel destinations and trips."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local server"
+    },
+    {
+      "url": "https://your-travel-api.onrender.com",
+      "description": "Render server"
+    }
+  ],
+  "paths": {
+    "/destinations": {
+      "get": {
+        "summary": "Get all destinations",
+        "responses": {
+          "200": { "description": "List of destinations" },
+          "500": { "description": "Server error" }
+        }
+      },
+      "post": {
+        "summary": "Create a destination",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Destination" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Destination created" },
+          "400": { "description": "Validation error" },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
+    "/destinations/{id}": {
+      "get": {
+        "summary": "Get destination by ID",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Destination found" },
+          "400": { "description": "Invalid ID format" },
+          "404": { "description": "Destination not found" },
+          "500": { "description": "Server error" }
+        }
+      },
+      "put": {
+        "summary": "Update destination",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Destination" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Destination updated" },
+          "400": { "description": "Validation or ID error" },
+          "404": { "description": "Destination not found" },
+          "500": { "description": "Server error" }
+        }
+      },
+      "delete": {
+        "summary": "Delete destination",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Destination deleted" },
+          "400": { "description": "Invalid ID format" },
+          "404": { "description": "Destination not found" },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
+    "/trips": {
+      "get": {
+        "summary": "Get all trips",
+        "responses": {
+          "200": { "description": "List of trips" },
+          "500": { "description": "Server error" }
+        }
+      },
+      "post": {
+        "summary": "Create a trip",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Trip" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Trip created" },
+          "400": { "description": "Validation error" },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
+    "/trips/{id}": {
+      "get": {
+        "summary": "Get trip by ID",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Trip found" },
+          "400": { "description": "Invalid ID format" },
+          "404": { "description": "Trip not found" },
+          "500": { "description": "Server error" }
+        }
+      },
+      "put": {
+        "summary": "Update trip",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Trip" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Trip updated" },
+          "400": { "description": "Validation or ID error" },
+          "404": { "description": "Trip not found" },
+          "500": { "description": "Server error" }
+        }
+      },
+      "delete": {
+        "summary": "Delete trip",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Trip deleted" },
+          "400": { "description": "Invalid ID format" },
+          "404": { "description": "Trip not found" },
+          "500": { "description": "Server error" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Destination": {
+        "type": "object",
+        "required": [
+          "name",
+          "country",
+          "city",
+          "rating",
+          "averageCostUSD",
+          "bestSeason",
+          "isFamilyFriendly"
+        ],
+        "properties": {
+          "name": { "type": "string", "example": "Paris" },
+          "country": { "type": "string", "example": "France" },
+          "city": { "type": "string", "example": "Paris" },
+          "description": { "type": "string", "example": "City of Light with iconic landmarks." },
+          "rating": { "type": "number", "example": 4.8 },
+          "averageCostUSD": { "type": "number", "example": 1500 },
+          "bestSeason": { "type": "string", "example": "Spring" },
+          "isFamilyFriendly": { "type": "boolean", "example": true }
+        }
+      },
+      "Trip": {
+        "type": "object",
+        "required": [
+          "destinationId",
+          "startDate",
+          "endDate",
+          "travelerName",
+          "travelerCount",
+          "totalCostUSD"
+        ],
+        "properties": {
+          "destinationId": {
+            "type": "string",
+            "example": "64bfe9f7c9e77a3d8f6a1234"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-06-01T00:00:00.000Z"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-06-10T00:00:00.000Z"
+          },
+          "travelerName": { "type": "string", "example": "John Doe" },
+          "travelerCount": { "type": "integer", "example": 2 },
+          "totalCostUSD": { "type": "number", "example": 2800 },
+          "notes": {
+            "type": "string",
+            "example": "Anniversary trip; include Eiffel Tower visit."
+          }
+        }
+      }
+    }
+  }
+}
