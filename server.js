@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const { initDb } = require("./data/database");
 const routes = require("./routes");
 const swaggerUi = require("swagger-ui-express");
@@ -7,6 +8,8 @@ const errorHandler = require("./middleware/errorHandler");
 require("dotenv").config();
 
 const app = express();
+
+app.use(cors());  
 
 // body parser
 app.use(express.json());
