@@ -6,15 +6,15 @@
     "description": "CRUD API for travel destinations and trips."
   },
   "servers": [
-    {
-      "url": "http://localhost:3000",
-      "description": "Local server"
-    },
-    {
-      "url": "https://your-travel-api.onrender.com",
-      "description": "Render server"
-    }
-  ],
+  {
+    "url": "https://travel-api-84v0.onrender.com",
+    "description": "Render server"
+  },
+  {
+    "url": "http://localhost:3000",
+    "description": "Local server"
+  }
+],
   "paths": {
     "/destinations": {
       "get": {
