@@ -1,5 +1,5 @@
 const express = require("express");
-const cors = require("cors");
+const cors = require("cors");                         
 const { initDb } = require("./data/database");
 const routes = require("./routes");
 const swaggerUi = require("swagger-ui-express");
@@ -9,32 +9,32 @@ require("dotenv").config();
 
 const app = express();
 
-app.use(cors());  
-
-// body parser
+// Middleware
+app.use(cors());                                     
 app.use(express.json());
 
-// swagger
+// Swagger 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
-// redirect root to docs
+// Root route redirects to Swagger
 app.get("/", (req, res) => {
   res.redirect("/api-docs");
 });
 
-// routes
+// Main API Routes
 app.use("/", routes);
 
-// error handler 
+// Error Handler 
 app.use(errorHandler);
 
 const port = process.env.PORT || 3000;
 
+// Start Server After DB Connects
 initDb()
   .then(() => {
     app.listen(port, () => {
-      console.log(`Server running on port ${port}`);
-      console.log(`Swagger: http://localhost:${port}/api-docs`);
+      console.log(`🚀 Server running on port ${port}`);
+      console.log(`📄 Swagger Docs: http://localhost:${port}/api-docs`);
     });
   })
   .catch((err) => {
