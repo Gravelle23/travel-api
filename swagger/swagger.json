@@ -3,7 +3,7 @@
   "info": {
     "title": "Travel API",
     "version": "1.0.0",
-    "description": "CRUD API for travel destinations and trips."
+    "description": "CRUD API for travel destinations, trips, travelers, and bookings."
   },
   "servers": [
     {
@@ -169,6 +169,160 @@
           "500": { "description": "Server error" }
         }
       }
+    },
+    "/travelers": {
+      "get": {
+        "summary": "Get all travelers",
+        "responses": {
+          "200": { "description": "List of travelers" },
+          "500": { "description": "Server error" }
+        }
+      },
+      "post": {
+        "summary": "Create a traveler",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Traveler" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Traveler created" },
+          "400": { "description": "Validation error" },
+          "401": { "description": "Unauthorized (missing or invalid token)" },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
+    "/travelers/{id}": {
+      "get": {
+        "summary": "Get traveler by ID",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Traveler found" },
+          "400": { "description": "Invalid ID format" },
+          "404": { "description": "Traveler not found" },
+          "500": { "description": "Server error" }
+        }
+      },
+      "put": {
+        "summary": "Update traveler",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Traveler" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Traveler updated" },
+          "400": { "description": "Validation or ID error" },
+          "401": { "description": "Unauthorized (missing or invalid token)" },
+          "404": { "description": "Traveler not found" },
+          "500": { "description": "Server error" }
+        }
+      },
+      "delete": {
+        "summary": "Delete traveler",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Traveler deleted" },
+          "400": { "description": "Invalid ID format" },
+          "401": { "description": "Unauthorized (missing or invalid token)" },
+          "404": { "description": "Traveler not found" },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
+    "/bookings": {
+      "get": {
+        "summary": "Get all bookings",
+        "responses": {
+          "200": { "description": "List of bookings" },
+          "500": { "description": "Server error" }
+        }
+      },
+      "post": {
+        "summary": "Create a booking",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Booking" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Booking created" },
+          "400": { "description": "Validation error" },
+          "401": { "description": "Unauthorized (missing or invalid token)" },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
+    "/bookings/{id}": {
+      "get": {
+        "summary": "Get booking by ID",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Booking found" },
+          "400": { "description": "Invalid ID format" },
+          "404": { "description": "Booking not found" },
+          "500": { "description": "Server error" }
+        }
+      },
+      "put": {
+        "summary": "Update booking",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Booking" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Booking updated" },
+          "400": { "description": "Validation or ID error" },
+          "401": { "description": "Unauthorized (missing or invalid token)" },
+          "404": { "description": "Booking not found" },
+          "500": { "description": "Server error" }
+        }
+      },
+      "delete": {
+        "summary": "Delete booking",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Booking deleted" },
+          "400": { "description": "Invalid ID format" },
+          "401": { "description": "Unauthorized (missing or invalid token)" },
+          "404": { "description": "Booking not found" },
+          "500": { "description": "Server error" }
+        }
+      }
     }
   },
   "components": {
@@ -236,6 +390,62 @@
           "notes": {
             "type": "string",
             "example": "Anniversary trip; include Eiffel Tower visit."
+          }
+        }
+      },
+      "Traveler": {
+        "type": "object",
+        "required": [
+          "name",
+          "email",
+          "isVIP"
+        ],
+        "properties": {
+          "name": { "type": "string", "example": "Jane Smith" },
+          "email": { "type": "string", "example": "jane@example.com" },
+          "phone": { "type": "string", "example": "+1-555-123-4567" },
+          "preferredLanguage": { "type": "string", "example": "English" },
+          "isVIP": { "type": "boolean", "example": false }
+        }
+      },
+      "Booking": {
+        "type": "object",
+        "required": [
+          "destinationId",
+          "travelerId",
+          "startDate",
+          "endDate",
+          "totalPriceUSD",
+          "status"
+        ],
+        "properties": {
+          "destinationId": {
+            "type": "string",
+            "example": "64bfe9f7c9e77a3d8f6a1234"
+          },
+          "travelerId": {
+            "type": "string",
+            "example": "64bfe9f7c9e77a3d8f6a5678"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-07-01T00:00:00.000Z"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-07-08T00:00:00.000Z"
+          },
+          "totalPriceUSD": { "type": "number", "example": 3200 },
+          "status": {
+            "type": "string",
+            "enum": ["Pending", "Confirmed", "Cancelled"],
+            "example": "Confirmed"
+          },
+          "notes": {
+            "type": "string",
+            "example": "Customer requested window seat on flights."
           }
         }
       }
