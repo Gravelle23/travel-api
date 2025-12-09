@@ -6,15 +6,15 @@
     "description": "CRUD API for travel destinations and trips."
   },
   "servers": [
-  {
-    "url": "https://travel-api-84v6.onrender.com",
-    "description": "Render server"
-  },
-  {
-    "url": "http://localhost:3000",
-    "description": "Local server"
-  }
-],
+    {
+      "url": "https://travel-api-84v6.onrender.com",
+      "description": "Render server"
+    },
+    {
+      "url": "http://localhost:3000",
+      "description": "Local server"
+    }
+  ],
   "paths": {
     "/destinations": {
       "get": {
@@ -26,6 +26,7 @@
       },
       "post": {
         "summary": "Create a destination",
+        "security": [{ "bearerAuth": [] }],
         "requestBody": {
           "required": true,
           "content": {
@@ -37,6 +38,7 @@
         "responses": {
           "201": { "description": "Destination created" },
           "400": { "description": "Validation error" },
+          "401": { "description": "Unauthorized (missing or invalid token)" },
           "500": { "description": "Server error" }
         }
       }
@@ -56,6 +58,7 @@
       },
       "put": {
         "summary": "Update destination",
+        "security": [{ "bearerAuth": [] }],
         "parameters": [
           { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
@@ -70,18 +73,21 @@
         "responses": {
           "200": { "description": "Destination updated" },
           "400": { "description": "Validation or ID error" },
+          "401": { "description": "Unauthorized (missing or invalid token)" },
           "404": { "description": "Destination not found" },
           "500": { "description": "Server error" }
         }
       },
       "delete": {
         "summary": "Delete destination",
+        "security": [{ "bearerAuth": [] }],
         "parameters": [
           { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
         "responses": {
           "200": { "description": "Destination deleted" },
           "400": { "description": "Invalid ID format" },
+          "401": { "description": "Unauthorized (missing or invalid token)" },
           "404": { "description": "Destination not found" },
           "500": { "description": "Server error" }
         }
@@ -97,6 +103,7 @@
       },
       "post": {
         "summary": "Create a trip",
+        "security": [{ "bearerAuth": [] }],
         "requestBody": {
           "required": true,
           "content": {
@@ -108,6 +115,7 @@
         "responses": {
           "201": { "description": "Trip created" },
           "400": { "description": "Validation error" },
+          "401": { "description": "Unauthorized (missing or invalid token)" },
           "500": { "description": "Server error" }
         }
       }
@@ -127,6 +135,7 @@
       },
       "put": {
         "summary": "Update trip",
+        "security": [{ "bearerAuth": [] }],
         "parameters": [
           { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
@@ -141,18 +150,21 @@
         "responses": {
           "200": { "description": "Trip updated" },
           "400": { "description": "Validation or ID error" },
+          "401": { "description": "Unauthorized (missing or invalid token)" },
           "404": { "description": "Trip not found" },
           "500": { "description": "Server error" }
         }
       },
       "delete": {
         "summary": "Delete trip",
+        "security": [{ "bearerAuth": [] }],
         "parameters": [
           { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
         "responses": {
           "200": { "description": "Trip deleted" },
           "400": { "description": "Invalid ID format" },
+          "401": { "description": "Unauthorized (missing or invalid token)" },
           "404": { "description": "Trip not found" },
           "500": { "description": "Server error" }
         }
@@ -160,6 +172,13 @@
     }
   },
   "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
     "schemas": {
       "Destination": {
         "type": "object",
@@ -176,7 +195,10 @@
           "name": { "type": "string", "example": "Paris" },
           "country": { "type": "string", "example": "France" },
           "city": { "type": "string", "example": "Paris" },
-          "description": { "type": "string", "example": "City of Light with iconic landmarks." },
+          "description": {
+            "type": "string",
+            "example": "City of Light with iconic landmarks."
+          },
           "rating": { "type": "number", "example": 4.8 },
           "averageCostUSD": { "type": "number", "example": 1500 },
           "bestSeason": { "type": "string", "example": "Spring" },

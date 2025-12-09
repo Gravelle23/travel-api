@@ -3,7 +3,7 @@ const { getDb } = require("../data/database");
 
 const collectionName = "trips";
 
-// all trips
+// get all trips
 const getAllTrips = async (req, res, next) => {
   try {
     const db = getDb();
@@ -14,99 +14,130 @@ const getAllTrips = async (req, res, next) => {
   }
 };
 
-// trip by ID
+// get a single trip by ID
 const getTripById = async (req, res, next) => {
-  try {
-    const db = getDb();
-    const id = new ObjectId(req.params.id);
+  const { id } = req.params;
 
-    const trip = await db.collection(collectionName).findOne({ _id: id });
+  try {
+    if (!ObjectId.isValid(id)) {
+      const error = new Error("Invalid trip ID format");
+      error.status = 400;
+      throw error;
+    }
+
+    const db = getDb();
+    const trip = await db
+      .collection(collectionName)
+      .findOne({ _id: new ObjectId(id) });
 
     if (!trip) {
-      return res.status(404).json({ message: "Trip not found" });
+      const error = new Error("Trip not found");
+      error.status = 404;
+      throw error;
     }
 
     res.status(200).json(trip);
   } catch (err) {
-    err.status = 400;
-    err.message = "Invalid trip ID format";
     next(err);
   }
 };
 
-// create trip
+// create new trip
 const createTrip = async (req, res, next) => {
   try {
     const db = getDb();
-
-    // Convert destinationId to ObjectId 
     const { destinationId, ...rest } = req.body;
 
-    const tripToInsert = {
+    if (!ObjectId.isValid(destinationId)) {
+      const error = new Error("Invalid destinationId format");
+      error.status = 400;
+      throw error;
+    }
+
+    const newTrip = {
       ...rest,
       destinationId: new ObjectId(destinationId),
     };
 
-    const result = await db.collection(collectionName).insertOne(tripToInsert);
+    const result = await db.collection(collectionName).insertOne(newTrip);
 
-    res.status(201).json({
-      message: "Trip created",
-      id: result.insertedId,
-    });
+    const createdTrip = await db
+      .collection(collectionName)
+      .findOne({ _id: result.insertedId });
+
+    res.status(201).json(createdTrip);
   } catch (err) {
-    if (err.name === "BSONTypeError") {
-      err.status = 400;
-      err.message = "Invalid destinationId format";
-    }
     next(err);
   }
 };
 
-// update trip
+// update existing trip
 const updateTrip = async (req, res, next) => {
+  const { id } = req.params;
+
   try {
-    const db = getDb();
-    const id = new ObjectId(req.params.id);
-
-    const updateData = { ...req.body };
-
-    if (updateData.destinationId) {
-      updateData.destinationId = new ObjectId(updateData.destinationId);
+    if (!ObjectId.isValid(id)) {
+      const error = new Error("Invalid trip ID format");
+      error.status = 400;
+      throw error;
     }
 
-    const result = await db.collection(collectionName).updateOne(
-      { _id: id },
-      { $set: updateData }
+    const db = getDb();
+    const { destinationId, ...rest } = req.body;
+
+    if (!ObjectId.isValid(destinationId)) {
+      const error = new Error("Invalid destinationId format");
+      error.status = 400;
+      throw error;
+    }
+
+    const updateDoc = {
+      ...rest,
+      destinationId: new ObjectId(destinationId),
+    };
+
+    const result = await db.collection(collectionName).findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $set: updateDoc },
+      { returnDocument: "after" }
     );
 
-    if (result.matchedCount === 0) {
-      return res.status(404).json({ message: "Trip not found" });
+    if (!result.value) {
+      const error = new Error("Trip not found");
+      error.status = 404;
+      throw error;
     }
 
-    res.status(200).json({ message: "Trip updated" });
+    res.status(200).json(result.value);
   } catch (err) {
-    err.status = 400;
-    err.message = "Invalid trip ID or destinationId format";
     next(err);
   }
 };
 
-// delete trip
+// delete a trip
 const deleteTrip = async (req, res, next) => {
-  try {
-    const db = getDb();
-    const id = new ObjectId(req.params.id);
+  const { id } = req.params;
 
-    const result = await db.collection(collectionName).deleteOne({ _id: id });
+  try {
+    if (!ObjectId.isValid(id)) {
+      const error = new Error("Invalid trip ID format");
+      error.status = 400;
+      throw error;
+    }
+
+    const db = getDb();
+    const result = await db
+      .collection(collectionName)
+      .deleteOne({ _id: new ObjectId(id) });
 
     if (result.deletedCount === 0) {
-      return res.status(404).json({ message: "Trip not found" });
+      const error = new Error("Trip not found");
+      error.status = 404;
+      throw error;
     }
 
     res.status(200).json({ message: "Trip deleted" });
   } catch (err) {
-    err.status = 400;
-    err.message = "Invalid trip ID format";
     next(err);
   }
 };

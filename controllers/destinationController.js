@@ -3,7 +3,7 @@ const { getDb } = require("../data/database");
 
 const collectionName = "destinations";
 
-// GET all destinations
+// get all destinations
 const getAllDestinations = async (req, res, next) => {
   try {
     const db = getDb();
@@ -14,80 +14,106 @@ const getAllDestinations = async (req, res, next) => {
   }
 };
 
-// GET destination by ID
+// get destination by ID
 const getDestinationById = async (req, res, next) => {
-  try {
-    const db = getDb();
-    const id = new ObjectId(req.params.id);
+  const { id } = req.params;
 
-    const destination = await db.collection(collectionName).findOne({ _id: id });
+  try {
+    if (!ObjectId.isValid(id)) {
+      const error = new Error("Invalid destination ID format");
+      error.status = 400;
+      throw error;
+    }
+
+    const db = getDb();
+    const destination = await db
+      .collection(collectionName)
+      .findOne({ _id: new ObjectId(id) });
 
     if (!destination) {
-      return res.status(404).json({ message: "Destination not found" });
+      const error = new Error("Destination not found");
+      error.status = 404;
+      throw error;
     }
 
     res.status(200).json(destination);
   } catch (err) {
-    err.status = 400;
-    err.message = "Invalid destination ID format";
     next(err);
   }
 };
 
-// POST create destination
+// create a new destination 
 const createDestination = async (req, res, next) => {
   try {
     const db = getDb();
+
     const result = await db.collection(collectionName).insertOne(req.body);
 
-    res.status(201).json({
-      message: "Destination created",
-      id: result.insertedId,
-    });
+    const createdDestination = await db
+      .collection(collectionName)
+      .findOne({ _id: result.insertedId });
+
+    res.status(201).json(createdDestination);
   } catch (err) {
     next(err);
   }
 };
 
-// PUT update destination
+// updating existing destination
 const updateDestination = async (req, res, next) => {
+  const { id } = req.params;
+
   try {
-    const db = getDb();
-    const id = new ObjectId(req.params.id);
-
-    const result = await db.collection(collectionName).updateOne(
-      { _id: id },
-      { $set: req.body }
-    );
-
-    if (result.matchedCount === 0) {
-      return res.status(404).json({ message: "Destination not found" });
+    if (!ObjectId.isValid(id)) {
+      const error = new Error("Invalid destination ID format");
+      error.status = 400;
+      throw error;
     }
 
-    res.status(200).json({ message: "Destination updated" });
+    const db = getDb();
+
+    const result = await db.collection(collectionName).findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $set: req.body },
+      { returnDocument: "after" }
+    );
+
+    if (!result.value) {
+      const error = new Error("Destination not found");
+      error.status = 404;
+      throw error;
+    }
+
+    res.status(200).json(result.value);
   } catch (err) {
-    err.status = 400;
-    err.message = "Invalid destination ID format";
     next(err);
   }
 };
 
-// DELETE destination
+// delete a destination
 const deleteDestination = async (req, res, next) => {
-  try {
-    const db = getDb();
-    const id = new ObjectId(req.params.id);
+  const { id } = req.params;
 
-    const result = await db.collection(collectionName).deleteOne({ _id: id });
+  try {
+    if (!ObjectId.isValid(id)) {
+      const error = new Error("Invalid destination ID format");
+      error.status = 400;
+      throw error;
+    }
+
+    const db = getDb();
+    const result = await db
+      .collection(collectionName)
+      .deleteOne({ _id: new ObjectId(id) });
 
     if (result.deletedCount === 0) {
-      return res.status(404).json({ message: "Destination not found" });
+      const error = new Error("Destination not found");
+      error.status = 404;
+      throw error;
     }
 
     res.status(200).json({ message: "Destination deleted" });
   } catch (err) {
-    err.status = 400;
-    err.message = "Invalid destination ID format";
     next(err);
   }
 };

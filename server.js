@@ -40,3 +40,5 @@ initDb()
   .catch((err) => {
     console.error("Failed to start server:", err);
   });
+
+  module.exports = app;

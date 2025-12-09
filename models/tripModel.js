@@ -1,7 +1,7 @@
 const Joi = require("joi");
 
 const tripSchema = Joi.object({
-  destinationId: Joi.string().required(), // convert to ObjectId in controller
+  destinationId: Joi.string().required(), 
   startDate: Joi.string().isoDate().required(),
   endDate: Joi.string().isoDate().required(),
   travelerName: Joi.string().min(2).required(),
