@@ -65,17 +65,24 @@ const updateDestination = async (req, res, next) => {
     }
 
     const db = getDb();
-    const result = await db.collection(collectionName).findOneAndUpdate(
+
+    // First, try to update
+    const updateResult = await db.collection(collectionName).updateOne(
       { _id: new ObjectId(id) },
-      { $set: req.body },
-      { returnDocument: "after" } 
+      { $set: req.body }
     );
 
-    if (!result.value) {
+    // If no document matched, return 404
+    if (updateResult.matchedCount === 0) {
       return res.status(404).json({ message: "Destination not found" });
     }
 
-    res.status(200).json(result.value);
+    // Fetch the updated document and return it
+    const updatedDestination = await db
+      .collection(collectionName)
+      .findOne({ _id: new ObjectId(id) });
+
+    res.status(200).json(updatedDestination);
   } catch (err) {
     next(err);
   }
