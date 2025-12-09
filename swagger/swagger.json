@@ -7,11 +7,11 @@
   },
   "servers": [
     {
-      "url": "https://travel-api-84v6.onrender.com",
+      "url": "https://travel-api-84v6.onrender.com/api",
       "description": "Render server"
     },
     {
-      "url": "http://localhost:3000",
+      "url": "http://localhost:3000/api",
       "description": "Local server"
     }
   ],
