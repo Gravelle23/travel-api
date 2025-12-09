@@ -14,15 +14,13 @@ const getAllTrips = async (req, res, next) => {
   }
 };
 
-// get a single trip by ID
+// get trip by id
 const getTripById = async (req, res, next) => {
-  const { id } = req.params;
-
   try {
+    const { id } = req.params;
+
     if (!ObjectId.isValid(id)) {
-      const error = new Error("Invalid trip ID format");
-      error.status = 400;
-      throw error;
+      return res.status(400).json({ message: "Invalid trip ID format" });
     }
 
     const db = getDb();
@@ -31,9 +29,7 @@ const getTripById = async (req, res, next) => {
       .findOne({ _id: new ObjectId(id) });
 
     if (!trip) {
-      const error = new Error("Trip not found");
-      error.status = 404;
-      throw error;
+      return res.status(404).json({ message: "Trip not found" });
     }
 
     res.status(200).json(trip);
@@ -42,87 +38,58 @@ const getTripById = async (req, res, next) => {
   }
 };
 
-// create new trip
+// create trip
 const createTrip = async (req, res, next) => {
   try {
     const db = getDb();
-    const { destinationId, ...rest } = req.body;
+    const result = await db.collection(collectionName).insertOne(req.body);
 
-    if (!ObjectId.isValid(destinationId)) {
-      const error = new Error("Invalid destinationId format");
-      error.status = 400;
-      throw error;
-    }
-
-    const newTrip = {
-      ...rest,
-      destinationId: new ObjectId(destinationId),
-    };
-
-    const result = await db.collection(collectionName).insertOne(newTrip);
-
-    const createdTrip = await db
-      .collection(collectionName)
-      .findOne({ _id: result.insertedId });
-
-    res.status(201).json(createdTrip);
+    res.status(201).json({ _id: result.insertedId, ...req.body });
   } catch (err) {
     next(err);
   }
 };
 
-// update existing trip
+// update trip
 const updateTrip = async (req, res, next) => {
-  const { id } = req.params;
-
   try {
+    const { id } = req.params;
+
     if (!ObjectId.isValid(id)) {
-      const error = new Error("Invalid trip ID format");
-      error.status = 400;
-      throw error;
+      return res.status(400).json({ message: "Invalid trip ID format" });
     }
 
     const db = getDb();
-    const { destinationId, ...rest } = req.body;
 
-    if (!ObjectId.isValid(destinationId)) {
-      const error = new Error("Invalid destinationId format");
-      error.status = 400;
-      throw error;
-    }
-
-    const updateDoc = {
-      ...rest,
-      destinationId: new ObjectId(destinationId),
-    };
-
-    const result = await db.collection(collectionName).findOneAndUpdate(
+    // First attempt update
+    const updateResult = await db.collection(collectionName).updateOne(
       { _id: new ObjectId(id) },
-      { $set: updateDoc },
-      { returnDocument: "after" }
+      { $set: req.body }
     );
 
-    if (!result.value) {
-      const error = new Error("Trip not found");
-      error.status = 404;
-      throw error;
+    // If nothing matched → 404
+    if (updateResult.matchedCount === 0) {
+      return res.status(404).json({ message: "Trip not found" });
     }
 
-    res.status(200).json(result.value);
+    // Fetch updated doc
+    const updatedTrip = await db
+      .collection(collectionName)
+      .findOne({ _id: new ObjectId(id) });
+
+    res.status(200).json(updatedTrip);
   } catch (err) {
     next(err);
   }
 };
 
-// delete a trip
+// delete trip
 const deleteTrip = async (req, res, next) => {
-  const { id } = req.params;
-
   try {
+    const { id } = req.params;
+
     if (!ObjectId.isValid(id)) {
-      const error = new Error("Invalid trip ID format");
-      error.status = 400;
-      throw error;
+      return res.status(400).json({ message: "Invalid trip ID format" });
     }
 
     const db = getDb();
@@ -131,9 +98,7 @@ const deleteTrip = async (req, res, next) => {
       .deleteOne({ _id: new ObjectId(id) });
 
     if (result.deletedCount === 0) {
-      const error = new Error("Trip not found");
-      error.status = 404;
-      throw error;
+      return res.status(404).json({ message: "Trip not found" });
     }
 
     res.status(200).json({ message: "Trip deleted" });
